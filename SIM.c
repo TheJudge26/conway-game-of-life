@@ -18,7 +18,7 @@ void draw_cell(SDL_Surface* surface,int cell_x, int cell_y, int cell_value){
     Uint32 color = cell_value == 0 ? color_black : color_white;
 
     SDL_Rect cell_rect = (SDL_Rect){ pixel_x,pixel_y,cell_width,cell_width};
-    SDL_FillRect(surface, &cell_rect, color_white);
+    SDL_FillRect(surface, &cell_rect, color);
 }
 
 void draw_grid(SDL_Surface* surface , int columns , int rows){
@@ -83,13 +83,28 @@ int main() {
     int row_count = surface_height / cell_width;
     int column_count = surface_width / cell_width;
     int game_matrix[row_count * column_count];
-    init_game_matrix(row_count, column_count, game_matrix);
     
-    draw_game_matrix(surface, row_count, column_count, game_matrix);
-    draw_grid(surface , columns , rows);
+    
+    int sim_on=1;
+    SDL_Event event;
+    while (sim_on)
+    {
+        while (SDL_PollEvent(&event))
+        {
+                if (event.type == SDL_QUIT)
+            {
+                sim_on=0;
+            }
+        }
+        
+        
+        init_game_matrix(row_count, column_count, game_matrix);
+        draw_game_matrix(surface, row_count, column_count, game_matrix);
+        draw_grid(surface , columns , rows);
+        SDL_UpdateWindowSurface(window);
+        SDL_Delay(1000);
 
-    SDL_UpdateWindowSurface(window);
-    SDL_Delay(5000);
+    }
 
     return 0;
 }
