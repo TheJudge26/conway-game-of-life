@@ -1,18 +1,21 @@
 #define SDL_MAIN_HANDLED
 #include <stdio.h>
 #include <SDL2/SDL.h>
+#include <stdlib.h>
 
 Uint32 color_white = 0xffffffff;
 Uint32 color_gray = 0x0f0f0f0f;
+Uint32 color_black = 0x00000000;
 int surface_width = 900;
 int surface_height=600;
 int cell_width=30;
 int line_width=2;
 
-void draw_cell(SDL_Surface* surface,int cell_x, int cell_y){
+void draw_cell(SDL_Surface* surface,int cell_x, int cell_y, int cell_value){
 
     int pixel_x=cell_x*cell_width;
     int pixel_y=cell_y*cell_width;
+    Uint32 color = cell_value == 0 ? color_black : color_white;
 
     SDL_Rect cell_rect = (SDL_Rect){ pixel_x,pixel_y,cell_width,cell_width};
     SDL_FillRect(surface, &cell_rect, color_white);
@@ -37,6 +40,32 @@ void draw_grid(SDL_Surface* surface , int columns , int rows){
 
 }
 
+void draw_game_matrix(SDL_Surface* surface,int rows,int columns,int game_matrix[]){
+
+     for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < columns; j++){
+
+            int cell_value = game_matrix[j + columns * i];
+            draw_cell(surface,j,i,cell_value);
+
+        };
+    };
+}
+
+void init_game_matrix(int rows, int columns, int game_matrix[]){
+
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < columns; j++){
+
+            game_matrix[j + columns * i]= rand() % 2;
+
+        };
+    };
+    
+}
+
 int main() {
     
     SDL_Init(SDL_INIT_VIDEO);
@@ -49,10 +78,14 @@ int main() {
     SDL_Window* window = SDL_CreateWindow(window_title,  SDL_WINDOWPOS_CENTERED,  SDL_WINDOWPOS_CENTERED, surface_width, surface_height, 0);
     
     SDL_Surface* surface= SDL_GetWindowSurface(window);
+
+
+    int row_count = surface_height / cell_width;
+    int column_count = surface_width / cell_width;
+    int game_matrix[row_count * column_count];
+    init_game_matrix(row_count, column_count, game_matrix);
     
-    int cell_x=10;
-    int cell_y=6;
-    draw_cell(surface, cell_x,cell_y);
+    draw_game_matrix(surface, row_count, column_count, game_matrix);
     draw_grid(surface , columns , rows);
 
     SDL_UpdateWindowSurface(window);
