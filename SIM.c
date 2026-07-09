@@ -59,7 +59,7 @@ void init_game_matrix(int rows, int columns, int game_matrix[]){
     {
         for (int j = 0; j < columns; j++){
 
-            game_matrix[j + columns * i]= rand() % 2;
+            game_matrix[j + columns * i]= rand() % 2 && rand() % 2;
 
         };
     };
@@ -69,88 +69,64 @@ void init_game_matrix(int rows, int columns, int game_matrix[]){
 int count_neighbors (int i, int j, int row_count, int column_count, int game_matrix[]){
     
     int neighbor_counter = 0;
-    //left
-    if (j > 0)
-    {
     
-        neighbor_counter += game_matrix[j-- + column_count * i];
-
-    }
-    //right
-    if (column_count - 1 )
-    {
-        neighbor_counter += game_matrix[j++ + column_count * i];
-    }
-    //above
-    if (i > 0)
-    {
-        neighbor_counter += game_matrix[j + column_count * i--];
-    }
-    //above left
-    if (i > 0 && j > 0)
-    {
-        neighbor_counter += game_matrix[j-- + column_count * i--];
-    }
-    //above right
-    if (i > 0 && j < (column_count - 1))
-    {
-        neighbor_counter += game_matrix[j++ + column_count * i--];
-    }
-    //below
-    if (i < (row_count - 1))
-    {
-        neighbor_counter += game_matrix[j + column_count * i++];
-    }
-    //below left
-    if (i < (row_count - 1) && j > 0)
-    {
-        neighbor_counter += game_matrix[j-- + column_count * i--];
-    }
-    //below right
-    if (i < (row_count) && j < (column_count - 1))
-    {
-        neighbor_counter += game_matrix[j++ + column_count * i++];
-    }
+    // Left
+    if (j > 0) neighbor_counter += game_matrix[(j - 1) + column_count * i];
     
+    // Right
+    if (j < (column_count - 1)) neighbor_counter += game_matrix[(j + 1) + column_count * i];
     
+    // Above
+    if (i > 0) neighbor_counter += game_matrix[j + column_count * (i - 1)];
     
-    return neighbor_counter ;
+    // Below
+    if (i < (row_count - 1)) neighbor_counter += game_matrix[j + column_count * (i + 1)];
+    
+    // Above Left
+    if (i > 0 && j > 0) neighbor_counter += game_matrix[(j - 1) + column_count * (i - 1)];
+    
+    // Above Right
+    if (i > 0 && j < (column_count - 1)) neighbor_counter += game_matrix[(j + 1) + column_count * (i - 1)];
+    
+    // Below Left
+    if (i < (row_count - 1) && j > 0) neighbor_counter += game_matrix[(j - 1) + column_count * (i + 1)];
+    
+    // Below Right
+    if (i < (row_count - 1) && j < (column_count - 1)) neighbor_counter += game_matrix[(j + 1) + column_count * (i + 1)];
+    
+    return neighbor_counter;
 }
+    
+ void sim_step(int rows, int columns, int game_matrix[]) {
+    
+    int temp_matrix[rows * columns];
 
-void sim_step(int rows, int columns, int game_matrix[]){
-
-    for (int i = 0; i < rows; i++)
-    {
-        for (int j = 0; j < columns; j++){
-
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+            
             int neighbor_count = count_neighbors(i, j, rows, columns, game_matrix);
-
-            int current_cell_value = game_matrix[j + columns*i];
-
-            if (neighbor_count < 2)
-            {
-                game_matrix[j + columns*i] = 0;
-            }
+            int current_index = j + columns * i;
+            int current_cell_value = game_matrix[current_index];
             
-            if (current_cell_value != 0 && (neighbor_count == 2 || neighbor_count == 3))
-            {
-                continue;
-            }
-            if (current_cell_value != 0 && neighbor_count > 3)
-            {
-                game_matrix[j + columns*i] = 0;
-            }
-            if (current_cell_value == 0 && neighbor_count == 3)
-            {
-                game_matrix[j + columns*i] = 1;
-            }
-            
-            
-            
+            temp_matrix[current_index] = 0;
 
-        };
-    };
+            if (current_cell_value == 1) {
+                
+                if (neighbor_count == 2 || neighbor_count == 3) {
+                    temp_matrix[current_index] = 1;
+                }
+            } else {
+                
+                if (neighbor_count == 3) {
+                    temp_matrix[current_index] = 1;
+                }
+            }
+        }
+    }
 
+    for (int i = 0; i < (rows * columns); i++) {
+        game_matrix[i] = temp_matrix[i];
+    }
 }
 
 int main() {
@@ -187,7 +163,7 @@ int main() {
         draw_game_matrix(surface, row_count, column_count, game_matrix);
         draw_grid(surface , columns , rows);
         SDL_UpdateWindowSurface(window);
-        SDL_Delay(1000);
+        SDL_Delay(100);
     }
 
     return 0;
