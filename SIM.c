@@ -125,6 +125,29 @@ void sim_step(int rows, int columns, int game_matrix[]){
 
             int neighbor_count = count_neighbors(i, j, rows, columns, game_matrix);
 
+            int current_cell_value = game_matrix[j + columns*i];
+
+            if (neighbor_count < 2)
+            {
+                game_matrix[j + columns*i] = 0;
+            }
+            
+            if (current_cell_value != 0 && (neighbor_count == 2 || neighbor_count == 3))
+            {
+                continue;
+            }
+            if (current_cell_value != 0 && neighbor_count > 3)
+            {
+                game_matrix[j + columns*i] = 0;
+            }
+            if (current_cell_value == 0 && neighbor_count == 3)
+            {
+                game_matrix[j + columns*i] = 1;
+            }
+            
+            
+            
+
         };
     };
 
