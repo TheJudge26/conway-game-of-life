@@ -66,6 +66,70 @@ void init_game_matrix(int rows, int columns, int game_matrix[]){
     
 }
 
+int count_neighbors (int i, int j, int row_count, int column_count, int game_matrix[]){
+    
+    int neighbor_counter = 0;
+    //left
+    if (j > 0)
+    {
+    
+        neighbor_counter += game_matrix[j-- + column_count * i];
+
+    }
+    //right
+    if (column_count - 1 )
+    {
+        neighbor_counter += game_matrix[j++ + column_count * i];
+    }
+    //above
+    if (i > 0)
+    {
+        neighbor_counter += game_matrix[j + column_count * i--];
+    }
+    //above left
+    if (i > 0 && j > 0)
+    {
+        neighbor_counter += game_matrix[j-- + column_count * i--];
+    }
+    //above right
+    if (i > 0 && j < (column_count - 1))
+    {
+        neighbor_counter += game_matrix[j++ + column_count * i--];
+    }
+    //below
+    if (i < (row_count - 1))
+    {
+        neighbor_counter += game_matrix[j + column_count * i++];
+    }
+    //below left
+    if (i < (row_count - 1) && j > 0)
+    {
+        neighbor_counter += game_matrix[j-- + column_count * i--];
+    }
+    //below right
+    if (i < (row_count) && j < (column_count - 1))
+    {
+        neighbor_counter += game_matrix[j++ + column_count * i++];
+    }
+    
+    
+    
+    return neighbor_counter ;
+}
+
+void sim_step(int rows, int columns, int game_matrix[]){
+
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < columns; j++){
+
+            int neighbor_count = count_neighbors(i, j, rows, columns, game_matrix);
+
+        };
+    };
+
+}
+
 int main() {
     
     SDL_Init(SDL_INIT_VIDEO);
@@ -79,12 +143,12 @@ int main() {
     
     SDL_Surface* surface= SDL_GetWindowSurface(window);
 
-
     int row_count = surface_height / cell_width;
     int column_count = surface_width / cell_width;
     int game_matrix[row_count * column_count];
     
     
+    init_game_matrix(row_count, column_count, game_matrix);
     int sim_on=1;
     SDL_Event event;
     while (sim_on)
@@ -96,14 +160,11 @@ int main() {
                 sim_on=0;
             }
         }
-        
-        
-        init_game_matrix(row_count, column_count, game_matrix);
+        sim_step(row_count, column_count, game_matrix);
         draw_game_matrix(surface, row_count, column_count, game_matrix);
         draw_grid(surface , columns , rows);
         SDL_UpdateWindowSurface(window);
         SDL_Delay(1000);
-
     }
 
     return 0;
