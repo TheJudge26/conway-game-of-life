@@ -8,7 +8,7 @@ Uint32 color_gray = 0x0f0f0f0f;
 Uint32 color_black = 0x00000000;
 int surface_width = 900;
 int surface_height=600;
-int cell_width=30;
+int cell_width=10;
 int line_width=2;
 
 void draw_cell(SDL_Surface* surface,int cell_x, int cell_y, int cell_value){
@@ -53,13 +53,26 @@ void draw_game_matrix(SDL_Surface* surface,int rows,int columns,int game_matrix[
     };
 }
 
-void init_game_matrix(int rows, int columns, int game_matrix[]){
+void rand_game_matrix(int rows, int columns, int game_matrix[]){
 
     for (int i = 0; i < rows; i++)
     {
         for (int j = 0; j < columns; j++){
 
             game_matrix[j + columns * i]= rand() % 2 && rand() % 2;
+
+        };
+    };
+    
+}
+
+void blank_game_matrix(int rows, int columns, int game_matrix[]){
+
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < columns; j++){
+
+            game_matrix[j + columns * i]= 0;
 
         };
     };
@@ -147,8 +160,12 @@ int main() {
     int game_matrix[row_count * column_count];
     
     
-    init_game_matrix(row_count, column_count, game_matrix);
+    rand_game_matrix(row_count, column_count, game_matrix);
+    draw_game_matrix(surface, row_count, column_count, game_matrix);
+    draw_grid(surface , columns , rows);
+    SDL_UpdateWindowSurface(window);
     int sim_on=1;
+    int sim_pause=1;
     SDL_Event event;
     while (sim_on)
     {
@@ -158,12 +175,43 @@ int main() {
             {
                 sim_on=0;
             }
+            else if (event.type == SDL_KEYDOWN)
+            {
+                if (event.key.keysym.sym == SDLK_SPACE)
+                {
+                    sim_pause = !sim_pause;
+                }
+
+                if (event.key.keysym.sym == SDLK_RETURN)
+                {
+                    rand_game_matrix(row_count, column_count, game_matrix);
+                    draw_game_matrix(surface, row_count, column_count, game_matrix);
+                    draw_grid(surface , columns , rows);
+                    SDL_UpdateWindowSurface(window);
+                }
+
+                if (event.key.keysym.sym == SDLK_BACKSPACE)
+                {
+                    blank_game_matrix(row_count, column_count, game_matrix);
+                    draw_game_matrix(surface, row_count, column_count, game_matrix);
+                    draw_grid(surface , columns , rows);
+                    SDL_UpdateWindowSurface(window);
+                }
+                
+            }
+            
         }
-        sim_step(row_count, column_count, game_matrix);
-        draw_game_matrix(surface, row_count, column_count, game_matrix);
-        draw_grid(surface , columns , rows);
-        SDL_UpdateWindowSurface(window);
-        SDL_Delay(100);
+        if (! sim_pause)
+        {
+            sim_step(row_count, column_count, game_matrix);
+            draw_game_matrix(surface, row_count, column_count, game_matrix);
+            draw_grid(surface , columns , rows);
+            SDL_UpdateWindowSurface(window);
+            SDL_Delay(100);
+        }
+        else{
+            SDL_Delay(200);
+        }
     }
 
     return 0;
