@@ -142,6 +142,15 @@ int count_neighbors (int i, int j, int row_count, int column_count, int game_mat
     }
 }
 
+
+void set_cell_matrix(Sint32 mouse_x, Sint32 mouse_y, int row_count, int column_count, int game_matrix[]){
+
+    int j = mouse_x / cell_width ;
+    int i = mouse_y / cell_width ;
+    game_matrix[j + column_count*i]= !game_matrix[j + column_count*i];
+
+}
+
 int main() {
     
     SDL_Init(SDL_INIT_VIDEO);
@@ -199,8 +208,21 @@ int main() {
                 }
                 
             }
+
+            else if (event.type == SDL_MOUSEBUTTONDOWN)
+            {
+                Sint32 mouse_x = event.button.x;
+                Sint32 mouse_y = event.button.y;
+                set_cell_matrix(mouse_x, mouse_y, row_count, column_count, game_matrix);
+                draw_game_matrix(surface, row_count, column_count, game_matrix);
+                draw_grid(surface , columns , rows);
+                SDL_UpdateWindowSurface(window);
+            }
+            
             
         }
+
+
         if (! sim_pause)
         {
             sim_step(row_count, column_count, game_matrix);
